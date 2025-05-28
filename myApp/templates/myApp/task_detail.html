@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h1 class="display-4 text-center">{{ task.title }}</h1>
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Task Details</h5>
+        <p class="card-text"><strong>Category:</strong> {{ task.category.title }}</p>
+        <p class="card-text"><strong>Deadline:</strong> {{ task.deadline }}</p>
+        <p class="card-text"><strong>Description:</strong> {{ task.description }}</p>
+        <p class="card-text"><strong>Priority:</strong> <span class="badge bg-primary">{{ task.get_priority_display }}</span></p>
+        <p class="card-text"><strong>Overdue:</strong> 
+          {% if task.overdue %}
+            <span class="badge bg-danger">Yes</span>
+          {% else %}
+            <span class="badge bg-success">No</span>
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+{% endblock %}

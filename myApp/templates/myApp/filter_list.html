@@ -1,0 +1,55 @@
+{% extends 'base.html' %} {% load django_bootstrap5 %} {% block content %}
+<div class="container mt-5">
+  <div class="list-group mb-5">
+ <!-- Filter Form -->
+  <h3 class="text-center mb-4">Filter your task here</h3>
+  <form action="{% url 'myApp:filter_list' %}" method="post">
+    {% csrf_token %}
+    <div class="row justify-content-center mb-5">
+      <!-- Category and Priority Inline -->
+      <div class="col-md-3">
+        <div class="form-group">
+          {% bootstrap_field form.category %}
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          {% bootstrap_field form.priority %}
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="col-md-2 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">Search</button>
+      </div>
+    </div>
+  </form>
+
+  <h3 class="text-center mb-4 text-success">List of tasks</h3>
+
+  <div class="row justify-content-center">
+    {% for task in tasks %}
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">{{ category }}</div>
+        <div class="card-body">
+          <h5 class="card-title">{{ task.title }}</h5>
+          <p class="card-text">{{ task.description }}</p>
+          <a
+            href="{% url 'myApp:edit_task' task.pk %}"
+            class="btn btn-sm btn-outline-warning"
+            >Edit</a
+          >
+          <a
+            href="{% url 'myApp:delete_task' task.pk %}"
+            class="btn btn-sm btn-outline-danger"
+            >Delete</a
+          >
+        </div>
+        <div class="card-footer text-muted">Due date: {{ task.deadline }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock content %}

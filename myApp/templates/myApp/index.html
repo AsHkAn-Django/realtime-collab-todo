@@ -1,0 +1,54 @@
+{% extends 'base.html' %} 
+
+{% block content %}
+<div class="container text-center mt-5">
+  <h1 class="display-4">Welcome to the ToDo App</h1>
+  <p class="lead">
+    Manage your tasks and filter them base on category and priority 
+  </p>
+  <p class="lead">
+    Switch between list or Calander visualisation
+  </p>
+  <p class="lead">
+    Get nottification when a task is overdue
+  </p>
+  <div class="row justify-content-center mt-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">All Tasks</h5>
+          <p class="card-text">
+            View and organize tasks by category or priority.
+          </p>
+          <a href="{% url 'myApp:all_tasks' %}" class="btn btn-primary"
+            >Browse Tasks</a
+          >
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Add a Task</h5>
+          <p class="card-text">Create new tasks with deadlines.</p>
+          <a href="{% url 'myApp:add_task' %}" class="btn btn-success"
+            >Add Task</a
+          >
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Add a Category</h5>
+          <p class="card-text">Create categories to organize your tasks.</p>
+          <a href="{% url 'myApp:add_category' %}" class="btn btn-info"
+            >Add Category</a
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

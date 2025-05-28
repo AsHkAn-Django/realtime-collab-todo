@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+<div class="container mt-5">
+
+  <!-- Filter Form -->
+  <h3 class="text-center mb-4">Filter your tasks</h3>
+  <form action="{% url 'myApp:filter_list' %}" method="post" class="mb-5">
+    {% csrf_token %}
+    <div class="row justify-content-center">
+      <div class="col-md-3">
+        {% bootstrap_field form.category show_label=True %}
+      </div>
+      <div class="col-md-3">
+        {% bootstrap_field form.priority show_label=True %}
+      </div>
+      <div class="col-md-2 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">Search</button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Tabs for List and Calendar -->
+  <h3 class="text-center mb-4 text-success">Switch between List and Calendar</h3>
+  <ul class="nav nav-tabs mb-3" id="taskTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="list-tab" data-bs-toggle="tab" data-bs-target="#list" type="button" role="tab">List</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendar" type="button" role="tab">Calendar</button>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="taskTabContent">
+    <!-- List Tab -->
+    <div class="tab-pane fade show active" id="list" role="tabpanel" aria-labelledby="list-tab">
+      <div class="row">
+        {% for task in tasks %}
+        <div class="col-md-4 mb-4">
+          <div class="card shadow-sm">
+            <div class="card-header {% if task.overdue %}bg-danger{% else %}bg-primary{% endif %} text-white">
+              {{ task.category }} -
+              <strong>{% if task.overdue %}Overdue{% else %}On Time{% endif %}</strong>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">{{ task.title }}</h5>
+              <p class="card-text">{{ task.description }}</p>
+              <a href="{% url 'myApp:edit_task' task.pk %}" class="btn btn-sm btn-outline-warning">Edit</a>
+              <a href="{% url 'myApp:delete_task' task.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+            </div>
+            <div class="card-footer text-muted">
+              Due date: {{ task.deadline }}
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-center text-muted">No tasks found.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Calendar Tab -->
+    <div class="tab-pane fade" id="calendar" role="tabpanel" aria-labelledby="calendar-tab">
+      <div id="calendar"></div>
+    </div>
+  </div>
+</div>
+
+<!-- FullCalendar Script -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const calendarEl = document.getElementById("calendar");
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      headerToolbar: {
+        left: "prev,next today",
+        center: "title",
+        right: "dayGridMonth,dayGridWeek",
+      },
+      initialView: "dayGridMonth",
+      navLinks: true,
+      editable: false,
+      dayMaxEvents: true,
+      events: {
+        url: "{% url 'myApp:task-list-json' %}",
+        failure: function () {
+          alert("There was an error while fetching events!");
+        },
+      },
+    });
+
+    calendar.render();
+  });
+</script>
+{% endblock content %}
