@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 from django.utils import timezone
 
@@ -34,5 +35,4 @@ class Task(models.Model):
 
 	def is_overdue(self):
 		return self.deadline < timezone.now()
-        
 
