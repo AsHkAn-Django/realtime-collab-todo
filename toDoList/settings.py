@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     
     'myApp',
     'shared_tasks',
+    'account',
 ]
 
 MIDDLEWARE = [
@@ -140,3 +141,8 @@ MY_PHONE_NUMBER =config("MY_PHONE_NUMBER")
 # Use Redis as broker and backend
 CELERY_BROKER_URL = 'redis://localhost:6379'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+
+
+# Login and Logout Redirection
+LOGIN_REDIRECT_URL = 'myApp:home'
+LOGOUT_REDIRECT_URL = 'myApp:home'

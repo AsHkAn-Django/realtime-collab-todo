@@ -26,15 +26,33 @@
           <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="{% url 'myApp:home' %}">Home</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'myApp:all_tasks' %}">Tasks</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'myApp:add_task' %}">Add Task</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'myApp:add_category' %}">Add Category</a>
-          </li>
+          
+          {% if user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'myApp:all_tasks' %}">Tasks</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'myApp:add_task' %}">Add Task</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'myApp:add_category' %}">Add Category</a>
+            </li>
+            <li class="nav-item"></li>
+              <form action="{% url 'account:logout' %}" method="post">
+                {% csrf_token %}
+                <input type="submit" value="Logout" class="nav-link">
+              </form>
+            </li>
+
+          {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'account:login' %}">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="">Register</a>
+            </li>
+          {% endif %}
+            
         </ul>
       </div>
     </div>

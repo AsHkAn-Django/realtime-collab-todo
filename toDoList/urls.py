@@ -17,9 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('myApp.urls', namespace='myApp')),
     path('shared_tasks/', include('shared_tasks.urls', namespace='shared_tasks')),
-
+    path('accounts/', include('account.urls')),
 ]
