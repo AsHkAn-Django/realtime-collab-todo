@@ -3,6 +3,8 @@ from django.views import generic, View
 from django.shortcuts import render,get_object_or_404
 from django.utils import timezone
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 from .models import Task, Category
 from .forms import TaskForm, CategoryForm, FilterForm
@@ -13,10 +15,10 @@ class IndexView(generic.TemplateView):
     template_name = "myApp/index.html"
     
  
-      
+@login_required      
 def filter_list(request):
-    tasks = Task.objects.all()
-    form = FilterForm(request.POST or None)
+    tasks = Task.objects.filter(owner=request.user)
+    form = FilterForm(request.POST or None, user=request.user)
 
     if request.method == "POST":
         if form.is_valid():
@@ -26,16 +28,12 @@ def filter_list(request):
                 tasks = tasks.filter(category_id=category)
             if priority:
                 tasks = tasks.filter(priority=priority)
-    else:
-        form = FilterForm()
 
-    print(tasks)
     return render(request, 'myApp/filter_list.html', {'tasks': tasks, 'form': form})
 
 
 
-class AllTasksView(generic.ListView):
-    model = Task
+class AllTasksView(LoginRequiredMixin, generic.ListView):
     context_object_name = 'tasks'
     template_name = "myApp/all_tasks.html"
     
@@ -49,17 +47,17 @@ class AllTasksView(generic.ListView):
         Task.objects.filter(deadline__lte=now, overdue=False).update(overdue=True)
         # and updates the ones which were edited to a new overdue
         Task.objects.filter(deadline__gte=now, overdue=True).update(overdue=False)
-        return super().get_queryset()
+        return Task.objects.filter(owner=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.all()
-        context['form'] = FilterForm
+        context['categories'] = Category.objects.filter(owner=self.request.user)
+        context['form'] = FilterForm(user=self.request.user)
         return context
 
     
 
-class AddCategoryView(generic.CreateView):
+class AddCategoryView(LoginRequiredMixin, generic.CreateView):
     model = Category
     form_class = CategoryForm
     success_url = reverse_lazy('myApp:all_tasks')
@@ -69,9 +67,10 @@ class AddCategoryView(generic.CreateView):
         """Duplicate Checker."""
         # we didn't use form.cleaned_data['title'] because it raise an error if there is no value
         category_name = form.cleaned_data.get('title')
-        if Category.objects.filter(title__iexact=category_name).exists():
+        if Category.objects.filter(title__iexact=category_name, owner=self.request.user).exists():
             form.add_error('title', 'This category already exists.')
             return self.form_invalid(form)
+        form.instance.owner = self.request.user
         return super().form_valid(form)
 
 
@@ -80,22 +79,37 @@ class AddTaskView(generic.CreateView):
     model = Task
     form_class = TaskForm
     template_name = "myApp/add_task.html"
-
-    def get_success_url(self):
-        return reverse_lazy('myApp:category_filter_list', args=[self.object.category.id])
+    success_url = reverse_lazy('myApp:all_tasks')
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+        
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
     
     
-class EditTaskView(generic.UpdateView):
+class EditTaskView(LoginRequiredMixin, UserPassesTestMixin, generic.UpdateView):
     model = Task
     form_class = TaskForm
     template_name = 'myApp/edit_task.html'
     success_url = reverse_lazy('myApp:all_tasks')
+    
+    def test_func(self):
+        obj = self.get_object()
+        return obj.owner == self.request.user
 
 
-class DeleteTaskView(generic.DeleteView):
+class DeleteTaskView(LoginRequiredMixin, UserPassesTestMixin, generic.DeleteView):
     model = Task
     template_name = 'myApp/delete_task.html'
     success_url = reverse_lazy('myApp:all_tasks')
+    
+    def test_func(self):
+        obj = self.get_object()
+        return obj.owner == self.request.user
     
 
 class TaskListJson(View):
@@ -115,7 +129,8 @@ class TaskListJson(View):
 
         return JsonResponse(events, safe=False)
 
-    
+
+login_required
 def task_detail(request, pk):
     task = get_object_or_404(Task, pk=pk)
     return render(request, 'myApp/task_detail.html', {'task': task})

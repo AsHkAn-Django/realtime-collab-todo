@@ -6,6 +6,8 @@ from django.utils import timezone
 
 class Category(models.Model):
 	title = models.CharField(max_length=264)
+	owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='categories', on_delete=models.CASCADE)
+
 
 	class Meta:
 		verbose_name = 'Category'
@@ -29,6 +31,7 @@ class Task(models.Model):
 	deadline = models.DateTimeField()
 	overdue = models.BooleanField(default=False)
 	priority = models.CharField(max_length=1, choices=PRIORITY_CHOICES)
+	owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='user_tasks', on_delete=models.CASCADE)
 
 	def __str__(self):
 		return self.title
