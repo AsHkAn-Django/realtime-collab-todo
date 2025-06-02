@@ -37,6 +37,9 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'myApp:add_category' %}">Add Category</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'shared_tasks:shared_tasks_list' %}">Shared Tasks</a>
+            </li>
             <li class="nav-item"></li>
               <form action="{% url 'account:logout' %}" method="post">
                 {% csrf_token %}

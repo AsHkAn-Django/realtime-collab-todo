@@ -42,9 +42,9 @@ INSTALLED_APPS = [
     'django_bootstrap5',
     'django_celery_beat',
     
+    'account',
     'myApp',
     'shared_tasks',
-    'account',
 ]
 
 MIDDLEWARE = [
