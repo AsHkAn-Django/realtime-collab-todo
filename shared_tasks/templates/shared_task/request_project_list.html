@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2 class="my-4">List of the requests:</h2>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">User</th>
+        <th scope="col">Task</th>
+        <th scope="col">Date</th>
+        <th scope="col">Status</th>
+        <th scope="col">Refuse</th>
+        <th scope="col">Accept</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for request in requests %}
+      <tr>
+        <th scope="row">{{request.id}}</th>
+        <td>{{request.user}}</td>
+        <td>{{request.task.title}}</td>
+        <td>{{request.created}}</td>
+        <td>{{request.status}}</td>
+        <td><a href="{% url 'shared_task:refuse_user' request.pk %}" class="btn btn-danger btn-sm">Ref</a></td>
+        <td><a href="{% url 'shared_task:accept_user' request.pk %}" class="btn btn-success btn-sm">Acc</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+    
+    
+{% endblock content %}

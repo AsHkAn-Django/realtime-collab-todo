@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+  <h2 class="my-4">Read the Agreements</h2>
+  <p>By accepting this you should follow the rules by the creator of the project and if not the owner
+    has the right to remove you from the project.
+    <form action="" method="post">
+      {% csrf_token %}
+      {% bootstrap_form form %}
+      <button type="submit" class="btn btn-outline-success">Agree and Submit</button>
+    </form>
+  </p>
+
+{% endblock content %}

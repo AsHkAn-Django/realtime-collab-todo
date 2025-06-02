@@ -1,5 +1,5 @@
 from django import forms
-from .models import TaskRecord, SubTask, SharedTask
+from .models import TaskRecord, SubTask, SharedTask, ParticipationRequest
 
 
 
@@ -22,3 +22,10 @@ class TaskRecordForm(forms.ModelForm):
     class Meta:
         model = TaskRecord
         fields = ['description',]
+        
+        
+class ParticipationRequestForm(forms.ModelForm):
+    
+    class Meta:
+        model = ParticipationRequest
+        fields = []

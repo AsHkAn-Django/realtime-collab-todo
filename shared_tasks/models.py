@@ -7,6 +7,7 @@ class SharedTask(models.Model):
     title = models.CharField(max_length=150)
     description = models.TextField()
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, through='ParticipationRequest', related_name='participating_tasks')
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
     
@@ -57,7 +58,7 @@ class ParticipationRequest(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.user.username} requested for {self.shared_task.title}'
+        return f'{self.user.username} requested for {self.task.title}'
     
     def accept(self):
         self.status = self.Status.ACCEPTED

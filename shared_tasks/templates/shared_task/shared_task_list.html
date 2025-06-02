@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2 class="my-4">List of the shared tasks to join:</h2>
+
+  <ul>
+    {% for task in shared_tasks %}
+      <strong>Project owner</strong>: {{ task.creator }}
+      <li>
+        <strong>{{ task.title }}</strong>: {{ task.description }}
+
+        {% if task.shared_sub_tasks.all %}
+          <ul>
+            {% for sub_task in task.shared_sub_tasks.all %}
+              <li>({% if sub_task.completed %}Finished{% else %}Unfinished{% endif %}) {{ sub_task.title }}: {{ sub_task.description }}</li>
+            {% endfor %}
+          </ul>
+          
+          {% if task.show_participate_button %}
+            <a href="{% url 'shared_task:participation_request' task.id %}" class="btn btn-outline-primary mt-3">Participate Request</a>
+          {% elif request.user == task.creator %}
+          <a href="{% url 'shared_task:request_project_list' %}">List of requests</a>
+          {% else %}
+            <p>You are already in this project.</p>
+          {% endif %}
+            
+        {% else %}
+          <p>No subtasks.</p>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock content %}
