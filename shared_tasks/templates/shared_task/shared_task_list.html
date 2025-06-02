@@ -27,6 +27,15 @@
         {% else %}
           <p>No subtasks.</p>
         {% endif %}
+        
+        {% if task.accepted_participants %}
+          <p><strong>Participants:</strong>: {% for participant in task.accepted_participants %}{{participant.username}},{% endfor %}
+            </p>
+        {% else %}
+        <p>There is no accepted participants yet.</p>
+        {% endif %}
+          
+
       </li>
     {% endfor %}
   </ul>

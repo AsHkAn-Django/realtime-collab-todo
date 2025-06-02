@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
         
 
@@ -10,6 +11,10 @@ class SharedTask(models.Model):
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
+    
+    @property
+    def accepted_participants(self):
+        return get_user_model().objects.filter(user_requests__task=self, user_requests__status='ACC')
     
     def __str__(self):
 	    return self.title
