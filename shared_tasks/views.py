@@ -13,9 +13,15 @@ class SharedTaskListView(LoginRequiredMixin, generic.ListView):
     template_name = "shared_task/shared_task_list.html"
 
     def get_queryset(self):
-        queryset = SharedTask.objects.all()
+        queryset = SharedTask.objects.prefetch_related('participants')
+        user = self.request.user
+
         for task in queryset:
-            task.show_participate_button = ( self.request.user != task.creator and self.request.user not in task.participants.all())
+            participants = list(task.participants.all())  
+            task.show_participate_button = (user != task.creator and user not in participants)
+            task.show_edit_button = (user == task.creator or user in participants)
+            task.show_delete_button = (user == task.creator)
+
         return queryset
     
 

@@ -12,7 +12,11 @@
         {% if task.shared_sub_tasks.all %}
           <ul>
             {% for sub_task in task.shared_sub_tasks.all %}
-              <li>({% if sub_task.completed %}Finished{% else %}Unfinished{% endif %}) {{ sub_task.title }}: {{ sub_task.description }}</li>
+              <li>
+                ({% if sub_task.completed %}Finished{% else %}Unfinished{% endif %}) {{ sub_task.title }}: {{ sub_task.description }}  
+                {% if task.show_edit_button %} <a href="" class="btn btn-outline-warning btn-sm">Edit</a> {% endif %}  
+                {% if task.show_delete_button %} <a href="" class="btn btn-outline-danger btn-sm">Delete</a> {% endif %}  
+              </li>
             {% endfor %}
           </ul>
           
