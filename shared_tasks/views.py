@@ -24,6 +24,15 @@ class SharedTaskListView(LoginRequiredMixin, generic.ListView):
 
         return queryset
     
+    
+
+class SharedSubTaskUpdateView(generic.UpdateView):
+    model = SubTask
+    form_class = SubTaskForm
+    template_name = "shared_task/shared_subtask_update.html"
+    success_url = reverse_lazy('shared_task:shared_task_list')
+
+
 
 class ParticipationRequestCreateView(generic.CreateView):
     model = ParticipationRequest

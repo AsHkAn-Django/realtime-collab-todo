@@ -14,7 +14,7 @@ class SubTaskForm(forms.ModelForm):
     
     class Meta:
         model = SubTask
-        fields = ['title', 'description',]
+        fields = ['title', 'description', 'completed']
         
         
 class TaskRecordForm(forms.ModelForm):
