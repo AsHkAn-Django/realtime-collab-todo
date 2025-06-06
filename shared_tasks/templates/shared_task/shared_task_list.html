@@ -15,7 +15,7 @@
               <li>
                 ({% if sub_task.completed %}Finished{% else %}Unfinished{% endif %}) {{ sub_task.title }}: {{ sub_task.description }}  
                 {% if task.show_edit_button %} <a href="{% url 'shared_task:shared_subtask_update' sub_task.id %}" class="btn btn-outline-warning btn-sm">Edit</a> {% endif %}  
-                {% if task.show_delete_button %} <a href="" class="btn btn-outline-danger btn-sm">Delete</a> {% endif %}  
+                {% if task.show_delete_button %} <a href="{% url 'shared_task:shared_subtask_delete' sub_task.id %}" class="btn btn-outline-danger btn-sm">Delete</a> {% endif %}  
               </li>
             {% endfor %}
           </ul>
