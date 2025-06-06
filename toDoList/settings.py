@@ -146,3 +146,15 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 # Login and Logout Redirection
 LOGIN_REDIRECT_URL = 'myApp:home'
 LOGOUT_REDIRECT_URL = 'myApp:home'
+
+
+
+# Enable ASGI
+ASGI_APPLICATION = 'toDoList.asgi.application'
+
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer", 
+    },
+}

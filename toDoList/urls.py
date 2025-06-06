@@ -21,6 +21,6 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('account.urls')),
-    path('shared_tasks/', include('shared_tasks.urls', namespace='shared_task')),
+    path('shared-tasks/', include('shared_tasks.urls', namespace='shared_task')),
     path('', include('myApp.urls', namespace='myApp')),
 ]

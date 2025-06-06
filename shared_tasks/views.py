@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.urls import reverse_lazy
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 
 
@@ -42,8 +44,25 @@ class SharedSubTaskUpdateView(LoginRequiredMixin, generic.UpdateView):
     form_class = SubTaskForm
     template_name = "shared_task/shared_subtask_update.html"
     success_url = reverse_lazy('shared_task:shared_task_list')
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        subtask = form.instance
 
-
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "shared_tasks",
+            {
+                "type": "task_update",
+                "task_id": subtask.id,
+                "task_title": subtask.title,
+                "task_description": subtask.description,
+                "task_completed": subtask.completed,
+            }
+        )
+        return response
+    
+    
 
 class ParticipationRequestCreateView(LoginRequiredMixin, generic.CreateView):
     model = ParticipationRequest

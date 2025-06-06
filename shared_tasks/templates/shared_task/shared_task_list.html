@@ -1,46 +1,132 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-  <h2 class="my-4">List of the shared tasks to join:</h2>
+  <div class="container py-4">
+    <h2 class="mb-4">List of Shared Tasks to Join</h2>
 
-  <ul>
     {% for task in shared_tasks %}
-      <strong>Project owner</strong>: {{ task.creator }}
-      <li>
-        <strong>{{ task.title }}</strong>: {{ task.description }}
-
-        {% if task.shared_sub_tasks.all %}
-          <ul>
-            {% for sub_task in task.shared_sub_tasks.all %}
-              <li>
-                ({% if sub_task.completed %}Finished{% else %}Unfinished{% endif %}) {{ sub_task.title }}: {{ sub_task.description }}  
-                {% if task.show_edit_button %} <a href="{% url 'shared_task:shared_subtask_update' sub_task.id %}" class="btn btn-outline-warning btn-sm">Edit</a> {% endif %}  
-                {% if task.show_delete_button %} <a href="{% url 'shared_task:shared_subtask_delete' sub_task.id %}" class="btn btn-outline-danger btn-sm">Delete</a> {% endif %}  
-              </li>
-            {% endfor %}
-          </ul>
-          
+      <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <div>
+            <strong>{{ task.title }}</strong>
+            <small class="text-light">by {{ task.creator.username }}</small>
+          </div>
           {% if task.show_participate_button %}
-            <a href="{% url 'shared_task:participation_request' task.id %}" class="btn btn-outline-primary mt-3">Participate Request</a>
+            <a href="{% url 'shared_task:participation_request' task.id %}"
+               class="btn btn-outline-light btn-sm">Participate</a>
           {% elif request.user == task.creator %}
-          <a href="{% url 'shared_task:request_project_list' %}">List of requests</a>
+            <a href="{% url 'shared_task:request_project_list' %}"
+               class="btn btn-outline-light btn-sm">View Requests</a>
           {% else %}
-            <p>You are already in this project.</p>
+            <span class="badge bg-secondary">Participating</span>
           {% endif %}
-            
-        {% else %}
-          <p>No subtasks.</p>
-        {% endif %}
-        
-        {% if task.accepted_participants %}
-          <p><strong>Participants:</strong>: {% for participant in task.accepted_participants %}{{participant.username}},{% endfor %}
-            </p>
-        {% else %}
-        <p>There is no accepted participants yet.</p>
-        {% endif %}
-          
+        </div>
 
-      </li>
+        <div class="card-body">
+          <p class="card-text">{{ task.description }}</p>
+
+          {% if task.shared_sub_tasks.all %}
+            <ul class="list-group">
+              {% for sub_task in task.shared_sub_tasks.all %}
+                <li id="task-{{ sub_task.id }}" class="list-group-item d-flex justify-content-between align-items-start">
+                  <div class="ms-2 me-auto">
+                    <div class="fw-bold">
+                      <span class="subtask-title">{{ sub_task.title }}</span>
+                      <small class="text-muted">
+                        — <span class="subtask-desc">{{ sub_task.description }}</span>
+                      </small>
+                    </div>
+                    <small>
+                      <span class="subtask-status">
+                        {% if sub_task.completed %}
+                          <span class="badge bg-success">Finished</span>
+                        {% else %}
+                          <span class="badge bg-secondary">Unfinished</span>
+                        {% endif %}
+                      </span>
+                    </small>
+                  </div>
+                  <div>
+                    {% if task.show_edit_button %}
+                      <a href="{% url 'shared_task:shared_subtask_update' sub_task.id %}"
+                         class="btn btn-outline-warning btn-sm me-1">Edit</a>
+                    {% endif %}
+                    {% if task.show_delete_button %}
+                      <a href="{% url 'shared_task:shared_subtask_delete' sub_task.id %}"
+                         class="btn btn-outline-danger btn-sm">Delete</a>
+                    {% endif %}
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted">No subtasks.</p>
+          {% endif %}
+
+          {% if task.accepted_participants %}
+            <p class="mt-3">
+              <strong>Participants:</strong>
+              {% for participant in task.accepted_participants %}
+                <span class="badge bg-info text-dark">{{ participant.username }}</span>
+              {% endfor %}
+            </p>
+          {% else %}
+            <p class="mt-3 text-muted">No participants yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-muted">There are no shared tasks at the moment.</p>
     {% endfor %}
-  </ul>
+  </div>
+
+  {% block scripts %}
+    <script>
+      console.log(">>> live-update script running");
+      const socket = new WebSocket('ws://' + window.location.host + '/ws/shared-tasks/');
+
+      socket.onopen = () => console.log(">>> WebSocket onopen");
+      socket.onerror = e => console.error(">>> WebSocket error", e);
+      socket.onclose = () => console.warn(">>> WebSocket closed");
+
+      socket.onmessage = function(e) {
+        console.log(">>> onmessage got:", e.data);
+        const data = JSON.parse(e.data);
+
+        if (data.type === "task_update") {
+          const id = data.task_id;
+          const newTitle = data.task_title;
+          const newDesc = data.task_description;
+          const completed = data.task_completed;
+
+          const container = document.querySelector(`#task-${id}`);
+          if (!container) {
+            console.log("No element with id=task-" + id);
+            return;
+          }
+
+          // Update status badge
+          const statusEl = container.querySelector(".subtask-status");
+          if (statusEl) {
+            if (completed) {
+              statusEl.innerHTML = '<span class="badge bg-success">Finished</span>';
+            } else {
+              statusEl.innerHTML = '<span class="badge bg-secondary">Unfinished</span>';
+            }
+          }
+
+          // Update title and description
+          const titleEl = container.querySelector(".subtask-title");
+          if (titleEl) {
+            titleEl.textContent = newTitle;
+          }
+          const descEl = container.querySelector(".subtask-desc");
+          if (descEl) {
+            descEl.textContent = newDesc;
+          }
+          // Buttons remain unchanged
+        }
+      };
+    </script>
+  {% endblock scripts %}
 {% endblock content %}
