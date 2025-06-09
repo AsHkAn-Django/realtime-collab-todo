@@ -80,53 +80,51 @@
     {% endfor %}
   </div>
 
-  {% block scripts %}
-    <script>
-      console.log(">>> live-update script running");
-      const socket = new WebSocket('ws://' + window.location.host + '/ws/shared-tasks/');
+  <script>
+    console.log(">>> live-update script running");
+    const socket = new WebSocket('ws://' + window.location.host + '/ws/shared-tasks/');
 
-      socket.onopen = () => console.log(">>> WebSocket onopen");
-      socket.onerror = e => console.error(">>> WebSocket error", e);
-      socket.onclose = () => console.warn(">>> WebSocket closed");
+    socket.onopen = () => console.log(">>> WebSocket onopen");
+    socket.onerror = e => console.error(">>> WebSocket error", e);
+    socket.onclose = () => console.warn(">>> WebSocket closed");
 
-      socket.onmessage = function(e) {
-        console.log(">>> onmessage got:", e.data);
-        const data = JSON.parse(e.data);
+    socket.onmessage = function(e) {
+      console.log(">>> onmessage got:", e.data);
+      const data = JSON.parse(e.data);
 
-        if (data.type === "task_update") {
-          const id = data.task_id;
-          const newTitle = data.task_title;
-          const newDesc = data.task_description;
-          const completed = data.task_completed;
+      if (data.type === "task_update") {
+        const id = data.task_id;
+        const newTitle = data.task_title;
+        const newDesc = data.task_description;
+        const completed = data.task_completed;
 
-          const container = document.querySelector(`#task-${id}`);
-          if (!container) {
-            console.log("No element with id=task-" + id);
-            return;
-          }
-
-          // Update status badge
-          const statusEl = container.querySelector(".subtask-status");
-          if (statusEl) {
-            if (completed) {
-              statusEl.innerHTML = '<span class="badge bg-success">Finished</span>';
-            } else {
-              statusEl.innerHTML = '<span class="badge bg-secondary">Unfinished</span>';
-            }
-          }
-
-          // Update title and description
-          const titleEl = container.querySelector(".subtask-title");
-          if (titleEl) {
-            titleEl.textContent = newTitle;
-          }
-          const descEl = container.querySelector(".subtask-desc");
-          if (descEl) {
-            descEl.textContent = newDesc;
-          }
-          // Buttons remain unchanged
+        const container = document.querySelector(`#task-${id}`);
+        if (!container) {
+          console.log("No element with id=task-" + id);
+          return;
         }
-      };
-    </script>
-  {% endblock scripts %}
+
+        // Update status badge
+        const statusEl = container.querySelector(".subtask-status");
+        if (statusEl) {
+          if (completed) {
+            statusEl.innerHTML = '<span class="badge bg-success">Finished</span>';
+          } else {
+            statusEl.innerHTML = '<span class="badge bg-secondary">Unfinished</span>';
+          }
+        }
+
+        // Update title and description
+        const titleEl = container.querySelector(".subtask-title");
+        if (titleEl) {
+          titleEl.textContent = newTitle;
+        }
+        const descEl = container.querySelector(".subtask-desc");
+        if (descEl) {
+          descEl.textContent = newDesc;
+        }
+        // Buttons remain unchanged
+      }
+    };
+  </script>
 {% endblock content %}

@@ -1,8 +1,8 @@
-# shared_tasks/consumers.py
-
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
+
 class SharedTaskConsumers(AsyncJsonWebsocketConsumer):
+    
     async def connect(self):
         await self.channel_layer.group_add("shared_tasks", self.channel_name)
         await self.accept()
